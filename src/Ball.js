@@ -2,12 +2,16 @@ import {
   BALL_RADIUS,
   COLORS,
   MORTALITY_PERCENTATGE,
+  INFECTION_RATE,
+  DIAGNOSED_RATE,
   TICKS_TO_RECOVER,
   RUN,
   SPEED,
-  STATES
+  STATES,
+  TICKS_OF_INCUBATION_PERIOD,
+  TICKS_OF_ASYMPTOM_TRANSMISSION
 } from './options.js'
-import { checkCollision, calculateChangeDirection } from './collisions.js'
+import { checkDistance } from './collisions.js'
 
 const diameter = BALL_RADIUS * 2
 
@@ -21,6 +25,7 @@ export class Ball {
     this.id = id
     this.state = state
     this.timeInfected = 0
+    this.timeExposed = 0
     this.hasMovement = hasMovement
     this.hasCollision = true
     this.survivor = false
@@ -28,6 +33,11 @@ export class Ball {
 
   checkState () {
     if (this.state === STATES.infected) {
+      if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION && this.hasMovement &&
+        this.sketch.random(100) < DIAGNOSED_RATE) {
+        this.hasMovement = false
+      }
+
       if (RUN.filters.death && !this.survivor && this.timeInfected >= TICKS_TO_RECOVER / 2) {
         this.survivor = this.sketch.random(100) >= MORTALITY_PERCENTATGE
         if (!this.survivor) {
@@ -39,7 +49,7 @@ export class Ball {
         }
       }
 
-      if (this.timeInfected >= TICKS_TO_RECOVER) {
+      if (this.timeInfected >= TICKS_TO_RECOVER + TICKS_OF_ASYMPTOM_TRANSMISSION) {
         this.state = STATES.recovered
         RUN.results[STATES.infected]--
         RUN.results[STATES.recovered]++
@@ -47,35 +57,50 @@ export class Ball {
         this.timeInfected++
       }
     }
+    if (this.state === STATES.exposed) {
+      if (this.timeExposed >= TICKS_OF_INCUBATION_PERIOD) {
+        if (this.sketch.random(100) < INFECTION_RATE) {
+          this.state = STATES.infected
+          RUN.results[STATES.infected]++
+          RUN.results[STATES.exposed]--
+        } else {
+          this.state = STATES.well
+          RUN.results[STATES.well]++
+          RUN.results[STATES.exposed]--
+        }
+        // test whether convert exposed ppl to infected
+      } else {
+        this.timeExposed++
+      }
+    }
   }
 
   checkCollisions ({ others }) {
     if (this.state === STATES.death) return
+    if (!this.hasMovement) return
 
     for (let i = this.id + 1; i < others.length; i++) {
       const otherBall = others[i]
-      const { state, x, y } = otherBall
+      const { state, x, y, hasMovement } = otherBall
       if (state === STATES.death) continue
+      if (!hasMovement) continue
 
       const dx = x - this.x
       const dy = y - this.y
 
-      if (checkCollision({ dx, dy, diameter: BALL_RADIUS * 2 })) {
-        const { ax, ay } = calculateChangeDirection({ dx, dy })
-
-        this.vx -= ax
-        this.vy -= ay
-        otherBall.vx = ax
-        otherBall.vy = ay
-
+      if (checkDistance({ dx, dy, diameter: BALL_RADIUS * 2 })) {
         // both has same state, so nothing to do
         if (this.state === state) return
         // if any is recovered, then nothing happens
         if (this.state === STATES.recovered || state === STATES.recovered) return
         // then, if some is infected, then we make both infected
-        if (this.state === STATES.infected || state === STATES.infected) {
-          this.state = otherBall.state = STATES.infected
-          RUN.results[STATES.infected]++
+        if (this.state === STATES.infected && state === STATES.well) {
+          otherBall.state = STATES.exposed
+          RUN.results[STATES.exposed]++
+          RUN.results[STATES.well]--
+        } else if (state === STATES.infected && this.state === STATES.well) {
+          this.state = STATES.exposed
+          RUN.results[STATES.exposed]++
           RUN.results[STATES.well]--
         }
       }
