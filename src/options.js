@@ -64,7 +64,7 @@ export const TOTAL_TICKS = 1600
 export const TICKS_TO_RECOVER = 500
 export const STATIC_PEOPLE_PERCENTATGE = 75
 
-export const INFECTION_RATE = 80
+export const INFECTION_RATE = 50
 export const DIAGNOSED_RATE = 1
 
 export const TICKS_OF_INCUBATION_PERIOD = 150
