@@ -104,11 +104,9 @@ export class Ball {
         if (this.sketch.random(100) < INFECTION_RATE) {
           this.state = STATES.infected
           RUN.results[STATES.infected]++
-          RUN.results[STATES.exposed]--
+          RUN.results[STATES.well]--
         } else {
           this.state = STATES.well
-          RUN.results[STATES.well]++
-          RUN.results[STATES.exposed]--
         }
         // test whether convert exposed ppl to infected
       } else {
@@ -140,12 +138,8 @@ export class Ball {
         // then, if some is infected, then we make both infected
         if (this.state === STATES.infected && state === STATES.well) {
           otherBall.state = STATES.exposed
-          RUN.results[STATES.exposed]++
-          RUN.results[STATES.well]--
         } else if (state === STATES.infected && this.state === STATES.well) {
           this.state = STATES.exposed
-          RUN.results[STATES.exposed]++
-          RUN.results[STATES.well]--
         }
       }
     }
