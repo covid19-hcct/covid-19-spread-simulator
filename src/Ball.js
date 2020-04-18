@@ -47,12 +47,14 @@ export class Ball {
       }
     }
     if (this.state === STATES.infected) {
-      if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION && this.hasMovement &&
+      if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION &&
         this.sketch.random(100) < DIAGNOSED_RATE) {
-        this.hasMovement = false
-        this.state = STATES.diagnosed
         RUN.results[STATES.diagnosed]++
-        RUN.results['concurrent-quarantined']++
+        if (this.hasMovement) {
+          RUN.results['concurrent-quarantined']++
+          this.hasMovement = false
+        }
+        this.state = STATES.diagnosed
         // contact tracing
         if (RUN.filters.contactTracing) {
           for (let i = 0; i < this.contacts.length; i++) {
