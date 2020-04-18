@@ -1,6 +1,7 @@
 const DEFAULT_FILTERS = {
   death: false,
-  stayHome: false
+  stayHome: false,
+  contactTracing: false
 }
 
 export const CANVAS_SIZE = {
@@ -32,16 +33,20 @@ export const STATES = {
 
 export const COUNTERS = {
   ...STATES,
-  'max-concurrent-infected': 'max-concurrent-infected'
+  'max-concurrent-infected': 'max-concurrent-infected',
+  'concurrent-quarantined': 'concurrent-quarantined',
+  'max-concurrent-quarantined': 'max-concurrent-quarantined'
 }
 
 export const STARTING_BALLS = {
-  [STATES.infected]: 0,
-  [STATES.well]: 190,
+  [STATES.infected]: 5,
+  [STATES.well]: 195,
   [STATES.recovered]: 0,
   [STATES.death]: 0,
-  [STATES.exposed]: 10,
-  'max-concurrent-infected': 0
+  [STATES.exposed]: 0,
+  'max-concurrent-infected': 0,
+  'concurrent-quarantined': 0,
+  'max-concurrent-quarantined': 0
 }
 
 export const RUN = {
@@ -51,18 +56,16 @@ export const RUN = {
 }
 
 export const MORTALITY_PERCENTATGE = 5
-export const SPEED = 3
+export const SPEED = 2
 export const TOTAL_TICKS = 1600
 export const TICKS_TO_RECOVER = 500
-export const STATIC_PEOPLE_PERCENTATGE = 25
+export const STATIC_PEOPLE_PERCENTATGE = 75
 
-export const QUARANTINE_DISTANCE = 5
-
-export const INFECTION_RATE = 50
+export const INFECTION_RATE = 80
 export const DIAGNOSED_RATE = 1
 
-export const TICKS_OF_INCUBATION_PERIOD = 50
-export const TICKS_OF_ASYMPTOM_TRANSMISSION = 350
+export const TICKS_OF_INCUBATION_PERIOD = 150
+export const TICKS_OF_ASYMPTOM_TRANSMISSION = 50
 
 export const resetRun = () => {
   RUN.results = { ...STARTING_BALLS }

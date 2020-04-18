@@ -60,6 +60,10 @@ export const updateCount = () => {
       RUN.results['max-concurrent-infected']++
     }
 
+    if (RUN.results['concurrent-quarantined'] > RUN.results['max-concurrent-quarantined']) {
+      RUN.results['max-concurrent-quarantined'] = RUN.results['concurrent-quarantined']
+    }
+
     Object.entries(domElements).forEach(([state, domElement]) => {
       if (domElement) {
         domElement.innerText = RUN.results[state]

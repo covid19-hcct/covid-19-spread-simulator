@@ -26,22 +26,52 @@ export class Ball {
     this.state = state
     this.timeInfected = 0
     this.timeExposed = 0
+    this.timeQuarantined = 0
     this.hasMovement = hasMovement
     this.hasCollision = true
     this.survivor = false
+    this.contacts = []
   }
 
   checkState () {
+    if (!this.hasMovement) {
+      if (!RUN.filters.stayHome &&
+        this.state !== STATES.infected && this.state !== STATES.death &&
+        this.timeQuarantined > TICKS_OF_INCUBATION_PERIOD + TICKS_OF_ASYMPTOM_TRANSMISSION) {
+        this.timeQuarantined = 0
+        this.hasMovement = true
+        RUN.results['concurrent-quarantined']--
+      } else {
+        this.timeQuarantined++
+      }
+    }
     if (this.state === STATES.infected) {
       if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION && this.hasMovement &&
         this.sketch.random(100) < DIAGNOSED_RATE) {
         this.hasMovement = false
+        RUN.results['concurrent-quarantined']++
+        // contact tracing
+        if (RUN.filters.contactTracing) {
+          for (let i = 0; i < this.contacts.length; i++) {
+            if (this.contacts[i].hasMovement) {
+              this.contacts[i].hasMovement = false
+              this.contacts[i].contacts = []
+              RUN.results['concurrent-quarantined']++
+            }
+          }
+          this.contacts = []
+        }
       }
 
-      if (RUN.filters.death && !this.survivor && this.timeInfected >= TICKS_TO_RECOVER / 2) {
+      if (RUN.filters.death && !this.survivor &&
+        this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION + TICKS_TO_RECOVER / 2) {
         this.survivor = this.sketch.random(100) >= MORTALITY_PERCENTATGE
         if (!this.survivor) {
-          this.hasMovement = false
+          if (this.hasMovement) {
+            this.hasMovement = false
+          } else {
+            RUN.results['concurrent-quarantined']--
+          }
           this.state = STATES.death
           RUN.results[STATES.infected]--
           RUN.results[STATES.death]++
@@ -89,6 +119,8 @@ export class Ball {
       const dy = y - this.y
 
       if (checkDistance({ dx, dy, diameter: BALL_RADIUS * 2 })) {
+        this.contacts.push(otherBall)
+        otherBall.contacts.push(this)
         // both has same state, so nothing to do
         if (this.state === state) return
         // if any is recovered, then nothing happens

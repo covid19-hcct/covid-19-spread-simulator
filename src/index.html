@@ -180,6 +180,9 @@
   <main>
     <header>
       <form>
+        <label aria-label="Activate Contact Tracing filter" title="Contact tracing">
+          <input id="contact-tracing" type="checkbox">Deploy Contact Tracing App
+        </label>
         <label aria-label="Activate People Stay At Home filter" title="People stay at home">
           <input id="stay-home" type="checkbox">🏠 Stay At Home
         </label>
@@ -193,7 +196,8 @@
         <div>Recovered<br /><span id="recovered">0</span></div>
         <div>Sick<br /><span id="infected">0</span></div>
         <div id="death-count">Deaths<br /><span id="death">0</span></div>
-        <div>Max Concurrently Sick<br /><span id="max-concurrent-infected">0</span></div>
+        <div>Max Sick at the Same Time<br /><span id="max-concurrent-infected">0</span></div>
+        <div>Max Stay-home at the Same Time<br /><span id="max-concurrent-quarantined">0</span></div>
       </div>
 
       <svg id="graph" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="50" width="100%" aria-labelledby="Graph of virus spread" role="img">

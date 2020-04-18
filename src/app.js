@@ -11,7 +11,8 @@ import {
 import {
   replayButton,
   deathFilter,
-  stayHomeFilter
+  stayHomeFilter,
+  contactTracingFilter
 } from './dom.js'
 
 import { Ball } from './Ball.js'
@@ -33,8 +34,12 @@ export const canvas = new window.p5(sketch => { // eslint-disable-line
     Object.keys(STARTING_BALLS).forEach(state => {
       Array.from({ length: STARTING_BALLS[state] }, () => {
         const hasMovement = RUN.filters.stayHome
-          ? sketch.random(0, 100) < STATIC_PEOPLE_PERCENTATGE || state === STATES.infected
+          ? sketch.random(0, 100) < (100 - STATIC_PEOPLE_PERCENTATGE) || state === STATES.infected
           : true
+        if (!hasMovement) {
+          RUN.results['concurrent-quarantined']++
+          RUN.results['max-concurrent-quarantined']++
+        }
 
         balls[id] = new Ball({
           id,
@@ -64,26 +69,32 @@ export const canvas = new window.p5(sketch => { // eslint-disable-line
     matchMedia.addListener(e => {
       isDesktop = e.matches
       createCanvas()
-      startBalls()
       resetValues()
+      startBalls()
     })
 
     replayButton.onclick = () => {
-      startBalls()
       resetValues()
+      startBalls()
     }
 
     deathFilter.onclick = () => {
       RUN.filters.death = !RUN.filters.death
       document.getElementById('death-count').classList.toggle('show', RUN.filters.death)
-      startBalls()
       resetValues()
+      startBalls()
     }
 
     stayHomeFilter.onchange = () => {
       RUN.filters.stayHome = !RUN.filters.stayHome
-      startBalls()
       resetValues()
+      startBalls()
+    }
+
+    contactTracingFilter.onchange = () => {
+      RUN.filters.contactTracing = !RUN.filters.contactTracing
+      resetValues()
+      startBalls()
     }
   }
 
