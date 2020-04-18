@@ -17,10 +17,11 @@ export const DESKTOP_CANVAS_SIZE = {
 export const BALL_RADIUS = 5
 export const COLORS = {
   death: '#c50000',
-  recovered: '#D88DBC',
-  infected: '#5ABA4A',
+  recovered: '#5ABA4A',
+  infected: '#ffc163',
   well: '#63C8F2',
-  exposed: '#aaaaaa'
+  exposed: '#63C8F2',
+  diagnosed: '#ff637a'
 }
 
 export const STATES = {
@@ -28,7 +29,8 @@ export const STATES = {
   well: 'well',
   recovered: 'recovered',
   death: 'death',
-  exposed: 'exposed'
+  exposed: 'exposed',
+  diagnosed: 'diagnosed'
 }
 
 export const COUNTERS = {
@@ -44,6 +46,7 @@ export const STARTING_BALLS = {
   [STATES.recovered]: 0,
   [STATES.death]: 0,
   [STATES.exposed]: 0,
+  [STATES.diagnosed]: 0,
   'max-concurrent-infected': 0,
   'concurrent-quarantined': 0,
   'max-concurrent-quarantined': 0

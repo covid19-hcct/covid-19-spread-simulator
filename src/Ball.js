@@ -35,8 +35,9 @@ export class Ball {
 
   checkState () {
     if (!this.hasMovement) {
-      if (!RUN.filters.stayHome &&
-        this.state !== STATES.infected && this.state !== STATES.death &&
+      if (((!RUN.filters.stayHome &&
+        this.state !== STATES.infected && this.state !== STATES.diagnosed &&
+        this.state !== STATES.death) || this.state === STATES.recovered) &&
         this.timeQuarantined > TICKS_OF_INCUBATION_PERIOD + TICKS_OF_ASYMPTOM_TRANSMISSION) {
         this.timeQuarantined = 0
         this.hasMovement = true
@@ -49,6 +50,8 @@ export class Ball {
       if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION && this.hasMovement &&
         this.sketch.random(100) < DIAGNOSED_RATE) {
         this.hasMovement = false
+        this.state = STATES.diagnosed
+        RUN.results[STATES.diagnosed]++
         RUN.results['concurrent-quarantined']++
         // contact tracing
         if (RUN.filters.contactTracing) {
@@ -62,7 +65,9 @@ export class Ball {
           this.contacts = []
         }
       }
+    }
 
+    if (this.state === STATES.infected || this.state === STATES.diagnosed) {
       if (RUN.filters.death && !this.survivor &&
         this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION + TICKS_TO_RECOVER / 2) {
         this.survivor = this.sketch.random(100) >= MORTALITY_PERCENTATGE
@@ -72,21 +77,28 @@ export class Ball {
           } else {
             RUN.results['concurrent-quarantined']--
           }
-          this.state = STATES.death
           RUN.results[STATES.infected]--
+          if (this.state === STATES.diagnosed) {
+            RUN.results[STATES.diagnosed]--
+          }
           RUN.results[STATES.death]++
+          this.state = STATES.death
           return
         }
       }
 
       if (this.timeInfected >= TICKS_TO_RECOVER + TICKS_OF_ASYMPTOM_TRANSMISSION) {
-        this.state = STATES.recovered
         RUN.results[STATES.infected]--
+        if (this.state === STATES.diagnosed) {
+          RUN.results[STATES.diagnosed]--
+        }
         RUN.results[STATES.recovered]++
+        this.state = STATES.recovered
       } else {
         this.timeInfected++
       }
     }
+
     if (this.state === STATES.exposed) {
       if (this.timeExposed >= TICKS_OF_INCUBATION_PERIOD) {
         if (this.sketch.random(100) < INFECTION_RATE) {

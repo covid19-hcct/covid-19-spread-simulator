@@ -57,7 +57,7 @@ export const updateCount = () => {
   if (RUN.tick < TOTAL_TICKS) {
     // calculate max concurrent infected
     if (RUN.results[STATES.infected] > RUN.results['max-concurrent-infected']) {
-      RUN.results['max-concurrent-infected']++
+      RUN.results['max-concurrent-infected'] = RUN.results[STATES.infected]
     }
 
     if (RUN.results['concurrent-quarantined'] > RUN.results['max-concurrent-quarantined']) {
