@@ -5,14 +5,15 @@ import {
   STARTING_BALLS,
   RUN,
   STATIC_PEOPLE_PERCENTATGE,
+  INSTALL_RATE,
   STATES
 } from './options.js'
 
 import {
   replayButton,
-  deathFilter,
   stayHomeFilter,
-  contactTracingFilter
+  contactTracingFilter,
+  partialContactTracingFilter
 } from './dom.js'
 
 import { Ball } from './Ball.js'
@@ -41,11 +42,15 @@ export const canvas = new window.p5(sketch => { // eslint-disable-line
           RUN.results['max-concurrent-quarantined']++
         }
 
+        const installedTracingApp = RUN.filters.contactTracing &&
+          (!RUN.filters.partialContactTracing || sketch.random(0, 100) < INSTALL_RATE)
+
         balls[id] = new Ball({
           id,
           sketch,
           state,
           hasMovement,
+          installedTracingApp,
           x: sketch.random(BALL_RADIUS, sketch.width - BALL_RADIUS),
           y: sketch.random(BALL_RADIUS, sketch.height - BALL_RADIUS)
         })
@@ -78,13 +83,6 @@ export const canvas = new window.p5(sketch => { // eslint-disable-line
       startBalls()
     }
 
-    deathFilter.onclick = () => {
-      RUN.filters.death = !RUN.filters.death
-      document.getElementById('death-count').classList.toggle('show', RUN.filters.death)
-      resetValues()
-      startBalls()
-    }
-
     stayHomeFilter.onchange = () => {
       RUN.filters.stayHome = !RUN.filters.stayHome
       resetValues()
@@ -93,6 +91,12 @@ export const canvas = new window.p5(sketch => { // eslint-disable-line
 
     contactTracingFilter.onchange = () => {
       RUN.filters.contactTracing = !RUN.filters.contactTracing
+      resetValues()
+      startBalls()
+    }
+
+    partialContactTracingFilter.onchange = () => {
+      RUN.filters.partialContactTracing = !RUN.filters.partialContactTracing
       resetValues()
       startBalls()
     }

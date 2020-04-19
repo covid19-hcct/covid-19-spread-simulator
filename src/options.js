@@ -1,7 +1,8 @@
 const DEFAULT_FILTERS = {
   death: false,
   stayHome: false,
-  contactTracing: false
+  contactTracing: false,
+  partialContactTracing: false
 }
 
 export const CANVAS_SIZE = {
@@ -17,11 +18,11 @@ export const DESKTOP_CANVAS_SIZE = {
 export const BALL_RADIUS = 5
 export const COLORS = {
   death: '#c50000',
-  recovered: '#5ABA4A',
-  infected: '#ffc163',
-  well: '#63C8F2',
+  recovered: '#009E73',
+  infected: '#F0E442',
+  well: '#56B4E9',
   exposed: '#63C8F2',
-  diagnosed: '#ff637a'
+  diagnosed: '#D55E00'
 }
 
 export const STATES = {
@@ -63,6 +64,8 @@ export const SPEED = 2
 export const TOTAL_TICKS = 1600
 export const TICKS_TO_RECOVER = 500
 export const STATIC_PEOPLE_PERCENTATGE = 75
+export const INSTALL_RATE = 20
+export const QUARANTINE_COMPLIANCE_RATE = 30
 
 export const INFECTION_RATE = 50
 export const DIAGNOSED_RATE = 1

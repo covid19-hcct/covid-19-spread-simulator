@@ -4,6 +4,7 @@ import {
   MORTALITY_PERCENTATGE,
   INFECTION_RATE,
   DIAGNOSED_RATE,
+  QUARANTINE_COMPLIANCE_RATE,
   TICKS_TO_RECOVER,
   RUN,
   SPEED,
@@ -16,7 +17,7 @@ import { checkDistance } from './collisions.js'
 const diameter = BALL_RADIUS * 2
 
 export class Ball {
-  constructor ({ x, y, id, state, sketch, hasMovement }) {
+  constructor ({ x, y, id, state, sketch, hasMovement, installedTracingApp }) {
     this.x = x
     this.y = y
     this.vx = sketch.random(-1, 1) * SPEED
@@ -28,6 +29,7 @@ export class Ball {
     this.timeExposed = 0
     this.timeQuarantined = 0
     this.hasMovement = hasMovement
+    this.installedTracingApp = installedTracingApp
     this.hasCollision = true
     this.survivor = false
     this.contacts = []
@@ -56,12 +58,15 @@ export class Ball {
         }
         this.state = STATES.diagnosed
         // contact tracing
-        if (RUN.filters.contactTracing) {
+        if (RUN.filters.contactTracing && this.installedTracingApp) {
           for (let i = 0; i < this.contacts.length; i++) {
             if (this.contacts[i].hasMovement) {
-              this.contacts[i].hasMovement = false
-              this.contacts[i].contacts = []
-              RUN.results['concurrent-quarantined']++
+              if (!RUN.filters.partialContactTracing ||
+                (this.sketch.random(100) < QUARANTINE_COMPLIANCE_RATE && this.contacts[i].installedTracingApp)) {
+                this.contacts[i].hasMovement = false
+                this.contacts[i].contacts = []
+                RUN.results['concurrent-quarantined']++
+              }
             }
           }
           this.contacts = []
