@@ -51,6 +51,7 @@ export class Ball {
     if (this.state === STATES.infected) {
       if (this.timeInfected >= TICKS_OF_ASYMPTOM_TRANSMISSION &&
         this.sketch.random(100) < DIAGNOSED_RATE) {
+        RUN.results[STATES.infected]--
         RUN.results[STATES.diagnosed]++
         if (this.hasMovement) {
           RUN.results['concurrent-quarantined']++
@@ -62,7 +63,8 @@ export class Ball {
           for (let i = 0; i < this.contacts.length; i++) {
             if (this.contacts[i].hasMovement) {
               if (!RUN.filters.partialContactTracing ||
-                (this.sketch.random(100) < QUARANTINE_COMPLIANCE_RATE && this.contacts[i].installedTracingApp)) {
+                (this.sketch.random(100) < QUARANTINE_COMPLIANCE_RATE &&
+                  this.contacts[i].installedTracingApp)) {
                 this.contacts[i].hasMovement = false
                 this.contacts[i].contacts = []
                 RUN.results['concurrent-quarantined']++
@@ -84,7 +86,9 @@ export class Ball {
           } else {
             RUN.results['concurrent-quarantined']--
           }
-          RUN.results[STATES.infected]--
+          if (this.state === STATES.infected) {
+            RUN.results[STATES.infected]--
+          }
           if (this.state === STATES.diagnosed) {
             RUN.results[STATES.diagnosed]--
           }
@@ -95,7 +99,9 @@ export class Ball {
       }
 
       if (this.timeInfected >= TICKS_TO_RECOVER + TICKS_OF_ASYMPTOM_TRANSMISSION) {
-        RUN.results[STATES.infected]--
+        if (this.state === STATES.infected) {
+          RUN.results[STATES.infected]--
+        }
         if (this.state === STATES.diagnosed) {
           RUN.results[STATES.diagnosed]--
         }

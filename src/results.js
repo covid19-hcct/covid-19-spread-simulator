@@ -29,7 +29,11 @@ const domElements = Object.fromEntries(
 
 const updateGraph = () => {
   let y = 0
-  const rects = Object.entries(RUN.results).map(([state, count]) => {
+  const orderList = [STATES.well, STATES.recovered, STATES.infected, STATES.diagnosed]
+  const reorderedResultList = orderList.map((state) => {
+    return [state, RUN.results[state]]
+  })
+  const rects = reorderedResultList.map(([state, count]) => {
     const color = COLORS[state]
     if (count > 0) {
       const percentatge = count / 200 * 50
@@ -56,8 +60,10 @@ export const resetValues = (isDesktopNewValue = isDesktop) => {
 export const updateCount = () => {
   if (RUN.tick < TOTAL_TICKS) {
     // calculate max concurrent infected
-    if (RUN.results[STATES.infected] > RUN.results['max-concurrent-infected']) {
-      RUN.results['max-concurrent-infected'] = RUN.results[STATES.infected]
+    if (RUN.results[STATES.infected] + RUN.results[STATES.diagnosed] >
+      RUN.results['max-concurrent-infected']) {
+      RUN.results['max-concurrent-infected'] =
+        RUN.results[STATES.infected] + RUN.results[STATES.diagnosed]
     }
 
     if (RUN.results['concurrent-quarantined'] > RUN.results['max-concurrent-quarantined']) {
